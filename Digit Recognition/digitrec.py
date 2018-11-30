@@ -1,5 +1,8 @@
 import numpy as np
-import keras
+import keras as kr
+from keras.models import Sequential
+from keras.layers import Dense, Dropout, MaxPooling2D
+from keras.optimizers import RMSprop
 import gzip
 
 # Open and read all of the MNIST files
@@ -12,12 +15,43 @@ with gzip.open('data/train-images-idx3-ubyte.gz', 'rb') as f:
 with gzip.open('data/train-labels-idx1-ubyte.gz', 'rb') as f:  
     raw_train_lbl = f.read()
 
-# Next we'll trim the excess bytes at the start and convert the bytes to integers
-test_img = np.frombuffer(raw_test_img, dtype = np.uint8, offset = 16)
+# Next we'll trimodelthe excess bytes at the start and convert the bytes to integers
+test_img = np.frombuffer(raw_test_img, dtype = np.uint8, offset = 16) / 255
 test_lbl = np.frombuffer(raw_test_lbl, dtype = np.uint8, offset = 8)
-train_img = np.frombuffer(raw_train_img, dtype = np.uint8, offset = 16)
+train_img = np.frombuffer(raw_train_img, dtype = np.uint8, offset = 16) / 255
 train_lbl = np.frombuffer(raw_train_lbl, dtype = np.uint8, offset = 8)
 
 # Finally we reshape the image arrays
-test_img = test_img.reshape(10000, 28, 28)
-train_img = train_img.reshape(60000, 28, 28)
+test_img  =  test_img.reshape(10000, 784)
+train_img = train_img.reshape(60000, 784)
+
+num_classes = 10
+
+# convert class vectors to binary class matrices
+train_lbl = kr.utils.to_categorical(train_lbl, num_classes)
+test_lbl = kr.utils.to_categorical(test_lbl, num_classes)
+
+# Next we create our keras model
+model = kr.models.Sequential()
+
+# Adding layers. The first layer defines the shape of the inputs
+model.add(Dense(512, activation='relu', input_dim=784))
+model.add(Dense(512, activation='relu'))
+model.add(Dropout(0.2))
+model.add(Dense(1, activation='softmax'))
+
+model.summary()
+
+model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
+
+model.compile(loss='categorical_crossentropy',
+              optimizer=RMSprop(),
+              metrics=['accuracy'])
+
+history = model.fit(train_img, train_lbl,
+                    batch_size=128,
+                    epochs=20,
+                    validation_data=(test_img, test_lbl))
+score = model.evaluate(test_img, test_lbl, verbose=0)
+print('Test loss:', score[0])
+print('Test accuracy:', score[1])
