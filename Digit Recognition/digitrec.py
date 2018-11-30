@@ -34,24 +34,22 @@ test_lbl = kr.utils.to_categorical(test_lbl, num_classes)
 # Next we create our keras model
 model = kr.models.Sequential()
 
-# Adding layers. The first layer defines the shape of the inputs
-model.add(Dense(512, activation='relu', input_dim=784))
+# Layers to add to our sequential model. The first layer defines the input shape
+model.add(Dense(512, activation='relu', input_shape=(784,)))
+model.add(Dropout(0.2))                                                 
 model.add(Dense(512, activation='relu'))
 model.add(Dropout(0.2))
-model.add(Dense(1, activation='softmax'))
+model.add(Dense(num_classes, activation='softmax'))
 
-model.summary()
-
-model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
-
+# Defines the loss function, optimizer and metrics and is needed for training
 model.compile(loss='categorical_crossentropy',
               optimizer=RMSprop(),
               metrics=['accuracy'])
 
-history = model.fit(train_img, train_lbl,
-                    batch_size=128,
-                    epochs=20,
-                    validation_data=(test_img, test_lbl))
+# fit trains the model for a given number of epochs
+model.fit(train_img, train_lbl, batch_size=100, epochs=20, validation_data=(test_img, test_lbl))
 score = model.evaluate(test_img, test_lbl, verbose=0)
+
+# Finally, print the loss and the accuracy
 print('Test loss:', score[0])
 print('Test accuracy:', score[1])
