@@ -1,7 +1,7 @@
 import numpy as np
 import keras as kr
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, MaxPooling2D
+from keras.layers import Dense, Dropout
 from keras.optimizers import RMSprop
 import gzip
 
@@ -27,7 +27,7 @@ train_img = train_img.reshape(60000, 784)
 
 num_classes = 10
 
-# convert class vectors to binary class matrices
+# Convert class vectors to binary class matrices 
 train_lbl = kr.utils.to_categorical(train_lbl, num_classes)
 test_lbl = kr.utils.to_categorical(test_lbl, num_classes)
 
@@ -35,11 +35,11 @@ test_lbl = kr.utils.to_categorical(test_lbl, num_classes)
 model = kr.models.Sequential()
 
 # Layers to add to our sequential model. The first layer defines the input shape
-model.add(Dense(512, activation='relu', input_shape=(784,)))
+model.add(Dense(1000, activation='relu', input_shape=(784,)))
 model.add(Dropout(0.2))                                                 
-model.add(Dense(512, activation='relu'))
+model.add(Dense(1000, activation='relu'))
 model.add(Dropout(0.2))
-model.add(Dense(num_classes, activation='softmax'))
+model.add(Dense(10, activation='softmax'))
 
 # Defines the loss function, optimizer and metrics and is needed for training
 model.compile(loss='categorical_crossentropy',
